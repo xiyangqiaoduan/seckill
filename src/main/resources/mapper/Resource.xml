@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yangcb.seckill.dao.resource.ResourceDao">
+
+	<select id="nav" resultType="Resource">
+	
+		SELECT 
+			id,
+			name,
+			remark,
+			seq,
+			url,
+			icon,
+			pid,
+			type
+		FROM 
+			resource 
+			where 1=1 
+		<choose>
+			<when test="id!=null and id!=''">
+				AND  pid=#{id}
+			</when>
+			<otherwise>
+				AND PID ='0'
+			</otherwise>
+		</choose>
+		
+				
+		ORDER BY seq ASC
+		
+	</select>
+	
+	<select id="getResourceById" resultType="Resource">
+	
+		SELECT 
+			id,
+			name,
+			remark,
+			seq,
+			url,
+			icon,
+			pid,
+			type
+		FROM 
+			resource 
+		WHERE 
+			id=#{id}
+		
+	</select>
+	
+
+</mapper>

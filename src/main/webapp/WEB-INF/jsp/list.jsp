@@ -7,48 +7,9 @@
 <title>秒杀列表页</title>
 <%@include file="common/header.jsp"%>
 
-<script type="text/javascript">
-
-	
-var ws = null;  
-function startServer(){
-	
-	var url="ws://127.0.0.1:8080/seckill/websocket/test"; 
-	 if ('WebSocket' in window) {  
-         ws = new WebSocket(url);  
-     } else if ('MozWebSocket' in window) {  
-         ws = new MozWebSocket(url);  
-     } else {  
-         console.log('浏览器不支持');  
-         return;  
-     }  
-	
-	  ws.onopen = function() {  
-          //alert('Opened!');  
-      };  
-      // 收到服务器发送的文本消息, event.data表示文本内容  
-      ws.onmessage = function(event) {  
-         // alert('Receive message: ' + event.data);  
-          console.log(event.data);
-          
-      };  
-      ws.onclose = function() {  
-      //  alert('Closed!');  
-     }  
-}
-//发送信息  
-function sendMessage(){  
-    var textMessage=document.getElementById("textMessage").value;  
-      
-    if(ws!=null&&textMessage!=""){  
-        ws.send(textMessage);  
-          
-    }  
-}  
-</script>
 
 </head>
-<body onload="startServer()">
+<body >
  		
 
 	<div class="container">

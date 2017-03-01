@@ -134,9 +134,8 @@ var seckill = {
             //计时交互
 
             $.get(seckill.URL.now(), {}, function (result) {
-                var obj = JSON.parse(result);
-                if (obj && obj['success']) {
-                    var nowTime = obj['data'];
+                if (result && result['success']) {
+                    var nowTime = result['data'];
                     //时间判断
                     seckill.countdwon(seckillId, nowTime, startTime, endTime);
                 } else {

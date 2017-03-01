@@ -49,10 +49,6 @@ public class SeckillController {
 			return "forward:/seckill/list";
 		}
 		model.addAttribute("seckill", seckill);
-	int a=0;
-	int b=1;
-	boolean aa=b/a>0;
-		
 		return "detail";
 	}
 

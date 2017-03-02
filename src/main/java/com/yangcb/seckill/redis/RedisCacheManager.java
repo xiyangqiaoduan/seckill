@@ -558,6 +558,295 @@ public class RedisCacheManager {
         return null;
     }
 
+    /***
+     * 通过KEY获取哈希集合中所有的键值
+     * @param key
+     * @return
+     */
+    public Set<String> hkeys(String key) {
+
+        if (null == key || key.trim().equals("")) {
+            return null;
+        }
+        ShardedJedis jedis = getJedis();
+        try {
+            return jedis.hkeys(key);
+        } catch (Exception e) {
+            LOG.info(String.format("获取哈希表中字段的field KEY=%s", key), e);
+        } finally {
+            returnResource(jedis);
+        }
+        return null;
+
+    }
+
+    /**
+     * 获取指定KEY的哈希键值总数
+     *
+     * @param key
+     * @return
+     */
+    public long lenHset(String key) {
+
+        if (null == key || key.trim().equals("")) {
+            return 0;
+        }
+        ShardedJedis jedis = getJedis();
+        try {
+            return jedis.hlen(key);
+        } catch (Exception e) {
+            LOG.info(String.format("获取指定KEY的哈希键值总数 KEY=%s", key), e);
+        } finally {
+            returnResource(jedis);
+        }
+        return 0;
+    }
+
+
+    /**
+     * 设置排序结合
+     *
+     * @param key
+     * @param score
+     * @param value
+     * @return
+     */
+    public boolean setSortedSet(String key, long score, String value) {
+        if (null == key || key.trim().equals("")) {
+            return false;
+        }
+        ShardedJedis jedis = getJedis();
+        try {
+            long result = jedis.zadd(key, score, value);
+            return result > 0;
+        } catch (Exception e) {
+            LOG.info("设置排序结合", e);
+        }
+        return false;
+    }
+
+    /**
+     * 获得排序集合
+     *
+     * @param key        KEY值
+     * @param startScore 开始
+     * @param endScore   结束
+     * @param ordeByDesc true -降序、fasle-升序
+     * @return
+     */
+    public Set<String> getSoredSet(String key, long startScore, long endScore, boolean ordeByDesc) {
+        if (null == key || key.trim().equals("")) {
+            return null;
+        }
+        ShardedJedis jedis = getJedis();
+        try {
+            if (ordeByDesc) {
+                return jedis.zrangeByScore(key, endScore, startScore);
+            } else {
+                return jedis.zrangeByScore(key, startScore, endScore);
+            }
+        } catch (Exception e) {
+            LOG.info("获得排序集合", e);
+        } finally {
+            returnResource(jedis);
+        }
+        return null;
+    }
+
+
+    /**
+     * 计算排序长度
+     *
+     * @param key
+     * @param startScore
+     * @param endScore
+     * @return
+     */
+    public long countSoredSet(String key, long startScore, long endScore) {
+        if (null == key || key.trim().equals("")) {
+            return 0;
+        }
+        ShardedJedis jedis = getJedis();
+        try {
+            return jedis.zcount(key, startScore, endScore);
+        } catch (Exception e) {
+            LOG.info("计算排序长度", e);
+        } finally {
+            returnResource(jedis);
+        }
+        return 0;
+
+    }
+
+
+    /**
+     * 删除排序集合
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public boolean delSoredSet(String key, String value) {
+
+        if (null == key || key.trim().equals("")) {
+            return false;
+        }
+
+        ShardedJedis jedis = getJedis();
+        try {
+            long result = jedis.zrem(key, value);
+            return result > 0;
+        } catch (Exception e) {
+            LOG.info("删除排序集合", e);
+        } finally {
+            returnResource(jedis);
+        }
+        return false;
+    }
+
+    /**
+     * 获得排序集合
+     *
+     * @param key
+     * @param startRange
+     * @param endRange
+     * @param orderByDesc
+     * @return
+     */
+    public Set<String> getSoredSetByRange(String key, int startRange, int endRange, boolean orderByDesc) {
+
+        if (null == key || key.trim().equals("")) {
+            return null;
+        }
+        ShardedJedis jedis = getJedis();
+        try {
+            if (orderByDesc) {
+                return jedis.zrevrange(key, startRange, endRange);
+            } else {
+                return jedis.zrange(key, startRange, endRange);
+            }
+        } catch (Exception ex) {
+            LOG.info("获得排序集合", ex);
+        } finally {
+            returnResource(jedis);
+        }
+        return null;
+    }
+
+    /**
+     * 获得排序打分
+     *
+     * @param key
+     * @return
+     */
+    public Double getScore(String key, String member) {
+        if (null == key || key.trim().equals("")) {
+            return 0d;
+        }
+        ShardedJedis jedis = getJedis();
+        try {
+            return jedis.zscore(key, member);
+        } catch (Exception ex) {
+            LOG.info("getSoredSet error.", ex);
+        } finally {
+            returnResource(jedis);
+        }
+        return 0d;
+    }
+
+    /**
+     * 存储
+     *
+     * @param key
+     * @param value
+     * @param second
+     * @return
+     */
+    public boolean set(String key, String value, int second) {
+        if (null == key || key.trim().equals("")) {
+            return false;
+        }
+        ShardedJedis jedis = getJedis();
+        try {
+            jedis.setex(key, second, value);
+            return true;
+        } catch (Exception ex) {
+            LOG.info("getSoredSet error.", ex);
+        } finally {
+            returnResource(jedis);
+        }
+        return false;
+    }
+
+    /**
+     * 普通存，没有过期时间
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public boolean set(String key, String value) {
+        if (null == key || key.trim().equals("")) {
+            return false;
+        }
+        ShardedJedis jedis = getJedis();
+        try {
+            jedis.set(key, value);
+            return true;
+        } catch (Exception ex) {
+            LOG.info("没有过期时间.", ex);
+        } finally {
+            returnResource(jedis);
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    public String get(String key, String defaultValue) {
+        if (null == key || key.trim().equals("")) {
+            return defaultValue;
+        }
+        ShardedJedis jedis = getJedis();
+        try {
+            return jedis.get(key) == null?defaultValue:jedis.get(key);
+        } catch (Exception ex) {
+            LOG.info("没有过期时间.", ex);
+        } finally {
+            returnResource(jedis);
+        }
+        return defaultValue;
+    }
+
+    public long incr(String key) {
+        ShardedJedis shardedJedis = null;
+        try {
+            shardedJedis = shardedJedisPool.getResource();
+            return shardedJedis.incr(key);
+        } catch (Exception ex) {
+            LOG.info("incr error.", ex);
+        } finally {
+            returnResource(shardedJedis);
+        }
+        return 0;
+    }
+
+    public long decr(String key) {
+        ShardedJedis shardedJedis = null;
+        try {
+            shardedJedis = shardedJedisPool.getResource();
+            return shardedJedis.decr(key);
+        } catch (Exception ex) {
+            LOG.info("incr error.", ex);
+        } finally {
+            returnResource(shardedJedis);
+        }
+        return 0;
+    }
 
 
 }

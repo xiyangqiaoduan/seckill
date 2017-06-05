@@ -5,6 +5,7 @@ import com.yangcb.seckill.dto.ResultModel;
 import com.yangcb.seckill.entity.ProductModel;
 import com.yangcb.seckill.service.ProductService;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductDao productDao;
+
+
+    public void add(){
+
+        //TODO
+
+    }
+
+
 
     @Override
     public ResultModel<ProductModel> search(String queryString, String catalog_name, String price, Integer page, String sort) throws Exception {

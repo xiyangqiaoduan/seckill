@@ -70,10 +70,10 @@
 
 	<!-- 配置solrcloud -->
 	<bean class="org.apache.solr.client.solrj.impl.CloudSolrServer" id="cloudSolrServer">
-		<constructor-arg value="172.16.254.245:2281,172.16.254.245:2282,172.16.254.245:2283"/>
-		<property name="defaultCollection"  value="collection1"/>
-		<property name="zkConnectTimeout"  value="2000"/>
-		<property name="zkClientTimeout" value="3000" />
+		<constructor-arg value="${solr.zk.url}"/>
+		<property name="defaultCollection"  value="${solr.collection}"/>
+		<property name="zkConnectTimeout"  value="${solr.zk.connecttimeout}"/>
+		<property name="zkClientTimeout" value="${solr.zk.clienttimeout}" />
 	</bean>
 
 	<bean class="com.yangcb.seckill.dao.search.ProductDao" id="productDao">

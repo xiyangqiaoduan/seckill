@@ -7,8 +7,10 @@ import org.apache.solr.client.solrj.impl.CloudSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrInputDocument;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -20,6 +22,12 @@ import java.util.List;
 public class ProductDao {
 
     private CloudSolrServer solrServer;
+
+
+    public void add(Collection<SolrInputDocument> docs) throws Exception {
+        solrServer.add(docs);
+        solrServer.commit();
+    }
 
 
     public ResultModel<ProductModel> search(SolrQuery solrQuery) throws Exception {
@@ -68,7 +76,4 @@ public class ProductDao {
         this.solrServer = solrServer;
     }
 
-    public CloudSolrServer getSolrServer() {
-        return solrServer;
-    }
 }

@@ -8,7 +8,7 @@
 
 	<!-- 配置整合mybatis过程 -->
 	<!-- 配置数据库相关参数 -->
-	<context:property-placeholder location="classpath:jdbc.properties" />
+	<context:property-placeholder location="classpath:*.properties" />
 	<!-- 数据库的连接池 -->
 	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
 		init-method="init" destroy-method="close">
@@ -66,6 +66,18 @@
 	<bean id="redisDao" class="com.yangcb.seckill.dao.cache.RedisDao">
 		<constructor-arg  index="0" value="localhost" />
 		<constructor-arg  index="1" value="6379" />
+	</bean>
+
+	<!-- 配置solrcloud -->
+	<bean class="org.apache.solr.client.solrj.impl.CloudSolrServer" id="cloudSolrServer">
+		<constructor-arg value="172.16.254.245:2281,172.16.254.245:2282,172.16.254.245:2283"/>
+		<property name="defaultCollection"  value="collection1"/>
+		<property name="zkConnectTimeout"  value="2000"/>
+		<property name="zkClientTimeout" value="3000" />
+	</bean>
+
+	<bean class="com.yangcb.seckill.dao.search.ProductDao" id="productDao">
+		<property name="solrServer"  ref="cloudSolrServer"/>
 	</bean>
 
 

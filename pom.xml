@@ -228,6 +228,13 @@
 			<version>1.5.9</version>
 		</dependency>
 
+		<!-- solr-solrj -->
+		<dependency>
+			<groupId>org.apache.solr</groupId>
+			<artifactId>solr-solrj</artifactId>
+			<version>4.10.3</version>
+		</dependency>
+
 
 
 	</dependencies>

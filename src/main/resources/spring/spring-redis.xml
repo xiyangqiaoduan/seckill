@@ -14,7 +14,7 @@
     http://www.springframework.org/schema/aop/spring-aop.xsd
     ">
 
-    <context:property-placeholder location="classpath:redis.properties"/>
+
     <context:component-scan base-package="com.yangcb.seckill.redis" />
 
     <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
@@ -46,4 +46,3 @@
 
 
 </beans>
- 

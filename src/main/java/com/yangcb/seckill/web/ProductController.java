@@ -1,13 +1,17 @@
 package com.yangcb.seckill.web;
 
+
+
 import com.yangcb.seckill.dto.ResultModel;
 import com.yangcb.seckill.entity.ProductModel;
 import com.yangcb.seckill.service.ProductService;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import java.util.List;
 
 /**
  * 商品模块检索
@@ -36,10 +40,25 @@ public class ProductController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
         return resultModel;
     }
+
+
+    @ResponseBody
+    @RequestMapping(value = "related",produces ={"application/json;charset=utf-8"})
+    /**
+     * 获取相关的产品
+     */
+
+    /**
+     * pid :产品id
+     * count：指定返回的条数
+     */
+    public List<ProductModel> getRelatedProduct(String pid, int count ) throws SolrServerException {
+        List<ProductModel> list= productService.getRelatedProduct(pid,count);
+        return list;
+    }
+
 
 
 }

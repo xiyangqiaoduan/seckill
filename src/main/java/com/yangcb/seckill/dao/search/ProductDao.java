@@ -3,15 +3,18 @@ package com.yangcb.seckill.dao.search;
 import com.yangcb.seckill.dto.ResultModel;
 import com.yangcb.seckill.entity.ProductModel;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.util.SimpleOrderedMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * ${DESCRIPTION}
@@ -35,6 +38,11 @@ public class ProductDao {
         QueryResponse response = solrServer.query(solrQuery);
         //2、从响应中获取结果集
         SolrDocumentList results = response.getResults();
+
+        //获取高亮信息
+        Map<String, Map<String, List<String>>> highlighting = response.getHighlighting();
+
+
         //3、处理结果集：
         //专门用于存放响应结果集中的个个商品数据的集合
         List<ProductModel> productList = new ArrayList<ProductModel>();
@@ -50,8 +58,16 @@ public class ProductDao {
                 ProductModel product = new ProductModel();
                 //商品id：
                 product.setPid(String.valueOf(document.get("id")));
-                //商品名称：
-                product.setName(String.valueOf(document.get("product_name")));
+                //商品名称
+                List list = highlighting.get(document.get("id")).get("product_name");
+
+                if (list != null) {
+                    product.setName((String) list.get(0));
+                } else {
+                    //商品名称：
+                    product.setName(String.valueOf(document.get("product_name")));
+                }
+
                 //商品价格：
 
                 if (document.get("product_price") != null && String.valueOf(document.get("product_price")) != null && !"".equals(String.valueOf(document.get("product_price")))) {
@@ -76,4 +92,33 @@ public class ProductDao {
         this.solrServer = solrServer;
     }
 
+
+    /**
+     * 相似度查询
+     *
+     * @param solrQuery
+     */
+    public List<ProductModel> getRelatedProduct(SolrQuery solrQuery) throws SolrServerException {
+
+        List<ProductModel> list = new ArrayList<ProductModel>();
+        QueryResponse response = solrServer.query(solrQuery);
+        if (response == null) {
+            return list;
+        }
+        //获取相似度id，
+        String id=solrQuery.get("q").split(":")[1];
+        SimpleOrderedMap<SolrDocumentList> mltResults = (SimpleOrderedMap<SolrDocumentList>) response.getResponse().get("moreLikeThis");
+        for (int i = 0; i < mltResults.size(); i++) {
+            SolrDocumentList items = mltResults.getVal(i);
+            for (SolrDocument doc : items) {
+                String idStr = doc.getFieldValue("id").toString();
+                if(idStr.equals(id)) continue;//如果是本身就继续， 排除本身
+                ProductModel productModel=new ProductModel();
+                productModel.setPid(idStr);
+                productModel.setName(doc.getFieldValue("product_name").toString());
+                list.add(productModel);
+            }
+        }
+        return list;
+    }
 }

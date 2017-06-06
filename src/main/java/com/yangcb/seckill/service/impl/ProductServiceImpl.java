@@ -1,11 +1,13 @@
 package com.yangcb.seckill.service.impl;
 
+import java.util.List;
+
 import com.yangcb.seckill.dao.search.ProductDao;
 import com.yangcb.seckill.dto.ResultModel;
 import com.yangcb.seckill.entity.ProductModel;
 import com.yangcb.seckill.service.ProductService;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +26,11 @@ public class ProductServiceImpl implements ProductService {
     private ProductDao productDao;
 
 
-    public void add(){
+    public void add() {
 
         //TODO
 
     }
-
 
 
     @Override
@@ -38,7 +39,8 @@ public class ProductServiceImpl implements ProductService {
         //1、封装查询条件对象，因为需要调用dao层的方法，dao层的检索方法就需要一个solr服务的查询条件对象
         SolrQuery solrQuery = new SolrQuery();
         //2、设置默认查询的域(该默认的域已经在solrHome/collection1/conf/schema.xml配置文件中配置了业务域)
-        solrQuery.setQuery("product_keywords");
+        //solrQuery.setQuery("product_keywords");
+        solrQuery.set("df", "product_keywords");//设置默认域
 
         //3、设置关键字查询
         if (queryString != null && !"".equals(queryString)) {
@@ -70,6 +72,14 @@ public class ProductServiceImpl implements ProductService {
         } else {
             solrQuery.setSort("product_price", SolrQuery.ORDER.desc);
         }
+
+        //设置高亮
+        solrQuery.setHighlight(true);
+        solrQuery.addHighlightField("product_name");
+        solrQuery.setHighlightSimplePre("<span>");
+        solrQuery.setHighlightSimplePost("</span>");
+
+
         //7、分页查询商品数据：
         //首先校验数据合法性，如果当前页的值为空或小于1，则默认开始查询第一页数据：
         if (page == null) {
@@ -79,17 +89,48 @@ public class ProductServiceImpl implements ProductService {
             page = 1;
         }
         //计算起始索引
-        Integer startIndex=(page-1)*PAGE_SIZE;
+        Integer startIndex = (page - 1) * PAGE_SIZE;
         //设置其实索引
         solrQuery.setStart(startIndex);
         //设置每页显示的商品记录数
         solrQuery.setRows(PAGE_SIZE);
         //根据封装后的SolrQuery查询对象查询商品数据：
-        ResultModel<ProductModel> resultModel=productDao.search(solrQuery);
+        ResultModel<ProductModel> resultModel = productDao.search(solrQuery);
         resultModel.setCurPage(page);
         //计算总页数：
-        Long pageCount = (long) Math.ceil((resultModel.getRecordCount()*1.0) / PAGE_SIZE);
+        Long pageCount = (long) Math.ceil((resultModel.getRecordCount() * 1.0) / PAGE_SIZE);
         resultModel.setPageCount(pageCount);
         return resultModel;
+    }
+
+    @Override
+    public List<ProductModel> getRelatedProduct(String pid, int count) throws SolrServerException {
+
+        //1、查询对象
+        SolrQuery solrQuery = new SolrQuery();
+
+        //（1）查询参数：
+        //  id，产品主键，或使用其他唯一键；
+        //  fl，需要返回的字段
+        //  mtl.fl，根据哪些字段判断相似度
+        //  mlt.mindf，最小文档频率，所在文档的个数小于这个值的词将不用于相似判断
+        //  mlt.mintf，最小分词频率，在单个文档中出现频率小于这个值的词将不用于相似判断
+        //  mlt.count，返回相似文章个数
+        //（2）如果setQuery中的查询条件，不是唯一结果，是多个文章，那么程序中会得到每个文章对应的moreLikeThis列表。
+        //（3）如果遇到org.apache.solr.search.EarlyTerminatingCollectorException，则将返回条数count设置为1即可。
+        //（4）若需根据id返回产品列表，可参考如下代码：
+
+        solrQuery.setQuery("id:" + pid)
+                .setParam("fl", "id,product_name")
+                .setParam("mlt", "true")
+                .setParam("mlt.fl", "product_name")
+                .setParam("mlt.mindf", "1")
+                .setParam("mlt.mintf", "1")
+                .setParam("mlt.count", String.valueOf(count));
+
+        List<ProductModel> list = productDao.getRelatedProduct(solrQuery);
+
+
+        return list;
     }
 }

@@ -5,6 +5,7 @@ package com.yangcb.seckill.web;
 import com.yangcb.seckill.dto.ResultModel;
 import com.yangcb.seckill.entity.ProductModel;
 import com.yangcb.seckill.service.ProductService;
+import com.yangcb.seckill.service.SpiderService;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,6 +27,8 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private SpiderService spiderService;
 
     @ResponseBody
     @RequestMapping(value = "list",produces ={"application/json;charset=utf-8"})
@@ -56,8 +59,17 @@ public class ProductController {
      */
     public List<ProductModel> getRelatedProduct(String pid, int count ) throws SolrServerException {
         List<ProductModel> list= productService.getRelatedProduct(pid,count);
+
         return list;
     }
+    @ResponseBody
+    @RequestMapping(value = "spider",produces ={"application/json;charset=utf-8"})
+    public String spider() throws Exception {
+        spiderService.spiderBaidu();
+
+        return "success";
+    }
+
 
 
 

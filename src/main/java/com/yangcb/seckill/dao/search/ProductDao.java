@@ -11,6 +11,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.SimpleOrderedMap;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +31,14 @@ public class ProductDao {
     public void add(Collection<SolrInputDocument> docs) throws Exception {
         solrServer.add(docs);
         solrServer.commit();
+    }
+
+    public void delAll() throws IOException, SolrServerException {
+
+        solrServer.deleteByQuery("*:*");
+
+        solrServer.commit();
+
     }
 
 

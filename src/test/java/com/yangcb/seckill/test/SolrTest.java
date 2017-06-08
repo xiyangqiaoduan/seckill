@@ -2,6 +2,7 @@ package com.yangcb.seckill.test;
 
 import com.yangcb.seckill.dao.search.ProductDao;
 import com.yangcb.seckill.entity.ProductModel;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -52,6 +54,13 @@ public class SolrTest {
 
     }
 
+
+    @Test
+    public void test02() throws IOException, SolrServerException {
+
+        productDao.delAll();
+
+    }
 
 
 }

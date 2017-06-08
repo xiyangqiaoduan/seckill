@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.yangcb.seckill.dao.NewsDao">
+	
+	<sql id="base_colum">
+		id,title,decription,query_word,image,image_v,news_type
+	</sql>
+	<sql id="table">
+		news_baidu
+	</sql>
+
+	<insert id="insert" parameterType="News">
+		insert into <include refid="table" />(<include refid="base_colum" />)
+		values
+			(#{id}, #{title},#{desc},#{query_word},#{image},#{image_v},#{type})
+	</insert>
+
+	<insert id="insertByBatch" parameterType="java.util.List">
+		insert into <include refid="table" />(<include refid="base_colum" />)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.id}, #{item.title},#{item.desc},#{item.query_word},#{item.image},#{item.image_v},#{item.type})
+		</foreach>
+	</insert>
+
+
+
+</mapper>
